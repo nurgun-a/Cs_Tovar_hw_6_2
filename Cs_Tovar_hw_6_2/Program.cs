@@ -10,13 +10,14 @@ namespace Cs_Tovar_hw_6_2
 {
     class Program
     {
-       
+        delegate void CommandHandler();
         static void Main(string[] args)
         {
             Title = "Tovar";
             Random rand = new Random();
             Provider_1 pr = new Provider_1();
             My_store ms = new My_store();
+            My_store ms1 = new My_store();
             foreach (Tovar item in pr)
             {
                 item.Quantity = rand.Next(10,2000);
@@ -36,17 +37,17 @@ namespace Cs_Tovar_hw_6_2
                 Clear();
                 WriteLine($"Поставщик:");
                 Tovar.Show_h();
-                pr.Sort();
+                pr.Sort(new Class_name());
                 Menu(pr.tovars, index);
                 WriteLine($"------------------------------------------------------------------");
                 WriteLine($"Заказ:");
                 Tovar.Show_h();
 
-
+                ms.Sort(new Class_name());
                 foreach (Tovar item in ms)
                     {
                         Write($"{item}");
-                    if (item is Milk) // Способ №3
+                    if (item is Milk) 
                     {
                         (item as Milk).ShowMilk();
                     }
@@ -72,9 +73,39 @@ namespace Cs_Tovar_hw_6_2
                         break;
                     case ConsoleKey.Enter:
                         {
-                            WriteLine($"Заказ оформлен");
+                            Clear();
+                            WriteLine($"Заказ оформлен:");
+                            //ms.tovars.Clear();
+                            foreach (Tovar item in ms)
+                            {
+                                if (item.Quantity >0)
+                                {
+                                    Tovar tmp = (Tovar)item.Clone();
+                                    ms1.tovars.Add(tmp); 
+                                }
+                            }
+                            Tovar.Show_h();
+                            ms.Sort(new Class_name());
+                            foreach (Tovar item in ms1)
+                            {
+                                Write($"{item}");
+                                if (item is Milk)
+                                {
+                                    (item as Milk).ShowMilk();
+                                }
+                                else if (item is Air_fresh)
+                                {
+                                    (item as Air_fresh).ShowAir();
+                                }
+                                else WriteLine();
+                            }
+                            WriteLine($"------------------------------------------------------------------");
+                            Tovar.Sum(ms1.tovars);
+                            WriteLine($"Итого: {Tovar.Sum(ms.tovars)} рублей");
                             ReadLine();
-                        }break; 
+                            Environment.Exit(0);
+                        }
+                        break; 
 
                     case ConsoleKey.RightArrow:
                         switch (index)
