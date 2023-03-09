@@ -27,24 +27,30 @@ namespace Cs_Tovar_hw_6_2
             }
             int index = 0;
 
-            WriteLine(@"Стрелками наверх и вниз передвигаетесь по списку,
-стрелками налево и направо, добавляете и удаляете количество
+            WriteLine(@"    Стрелками наверх и вниз передвигаетесь по списку,
+    Стрелка налево  - уменьшаете количество на 1
+    Стрелка направо - добавляете количество на 1
+    Пробел - ввести количество вручную
+    Enter  - оформить заказ и выйти из программы
+    Escape - выйти
 
-            Нажмите Enter чтобы продолжить");
-            ReadLine();
+                Нажмите Enter чтобы продолжить");
+            ReadLine();           
             while (true)
             {
                 Clear();
-                WriteLine($"Поставщик:");
-                Tovar.Show_h();
-                pr.Sort(new Class_name());
-                Menu(pr.tovars, index);
-                WriteLine($"------------------------------------------------------------------");
                 WriteLine($"Заказ:");
                 Tovar.Show_h();
-
+                pr.Sort(new Class_name());
                 ms.Sort(new Class_name());
-                foreach (Tovar item in ms)
+                Menu(ms.tovars, index);
+
+                WriteLine($"Итого: {Tovar.Sum(ms.tovars)} рублей");
+                WriteLine();
+                WriteLine($"------------------------------------------------------------------");
+                WriteLine($"Поставщик:");
+                Tovar.Show_h();                
+                foreach (Tovar item in pr)
                     {
                         Write($"{item}");
                     if (item is Milk) 
@@ -58,214 +64,114 @@ namespace Cs_Tovar_hw_6_2
                     else WriteLine();
                 }
                 WriteLine($"------------------------------------------------------------------");
-                Tovar.Sum(ms.tovars);
-                WriteLine($"Итого: {Tovar.Sum(ms.tovars)} рублей");
-                
-                switch (ReadKey(true).Key)
+                try
                 {
-                    case ConsoleKey.DownArrow:
-                        if (index < pr.tovars.Count - 1)
-                            index++;
-                        break;
-                    case ConsoleKey.UpArrow:
-                        if (index >0)
-                            index--;
-                        break;
-                    case ConsoleKey.Enter:
-                        {
-                            Clear();
-                            WriteLine($"Заказ оформлен:");
-                            //ms.tovars.Clear();
-                            foreach (Tovar item in ms)
+                    switch (ReadKey(true).Key)
+                    {
+                        case ConsoleKey.DownArrow:
+                            if (index < pr.tovars.Count - 1)
+                                index++;
+                            break;
+                        case ConsoleKey.UpArrow:
+                            if (index > 0)
+                                index--;
+                            break;
+                        case ConsoleKey.Enter:
                             {
-                                if (item.Quantity >0)
+                                Clear();
+                                WriteLine($"Заказ оформлен:");
+                                foreach (Tovar item in ms)
                                 {
-                                    Tovar tmp = (Tovar)item.Clone();
-                                    ms1.tovars.Add(tmp); 
+                                    if (item.Quantity > 0)
+                                    {
+                                        Tovar tmp = (Tovar)item.Clone();
+                                        ms1.tovars.Add(tmp);
+                                    }
                                 }
+                                Tovar.Show_h();
+                                ms.Sort(new Class_name());
+                                foreach (Tovar item in ms1)
+                                {
+                                    Write($"{item}");
+                                    if (item is Milk)
+                                    {
+                                        (item as Milk).ShowMilk();
+                                    }
+                                    else if (item is Air_fresh)
+                                    {
+                                        (item as Air_fresh).ShowAir();
+                                    }
+                                    else WriteLine();
+                                }
+                                WriteLine($"------------------------------------------------------------------");
+                                Tovar.Sum(ms1.tovars);
+                                if (!ms1.tovars.Any()) throw new MyEx1();
+                                WriteLine($"Итого: {Tovar.Sum(ms.tovars)} рублей");
+                                WriteLine();
+                                WriteLine($"{DateTime.Now.ToShortDateString()}");
+                                ReadLine();
+                                Environment.Exit(0);
                             }
-                            Tovar.Show_h();
-                            ms.Sort(new Class_name());
-                            foreach (Tovar item in ms1)
+                            break;
+                        case ConsoleKey.Escape:
                             {
-                                Write($"{item}");
-                                if (item is Milk)
-                                {
-                                    (item as Milk).ShowMilk();
-                                }
-                                else if (item is Air_fresh)
-                                {
-                                    (item as Air_fresh).ShowAir();
-                                }
-                                else WriteLine();
+                                Environment.Exit(0);
                             }
-                            WriteLine($"------------------------------------------------------------------");
-                            Tovar.Sum(ms1.tovars);
-                            WriteLine($"Итого: {Tovar.Sum(ms.tovars)} рублей");
-                            ReadLine();
-                            Environment.Exit(0);
-                        }
-                        break; 
+                            break;
+                        case ConsoleKey.RightArrow:
+                            {
+                                if (ms.tovars.Any() && pr.tovars[index].Quantity > 0)
+                                {
+                                    pr.tovars[index].Quantity--;
+                                    ms.tovars[index].Quantity++;
+                                }
+                                else break;
+                            }
+                            break;
+                        case ConsoleKey.LeftArrow:
+                            {
+                                if (ms.tovars[index].Quantity > 0)
+                                {
+                                    pr.tovars[index].Quantity++;
+                                    ms.tovars[index].Quantity--;
+                                }
+                                else WriteLine($"error");
+                            }
+                            break;
+                        case ConsoleKey.Spacebar:
+                            {
+                                Clear();
+                                Tovar.Show_h();
+                                WriteLine($"{ pr.tovars[index]}");
+                                Write("Введите количество: "); int Itmp = int.Parse(ReadLine());
+                                if (Itmp > 0 && pr.tovars[index].Quantity >= Itmp)
+                                {
+                                    pr.tovars[index].Quantity -= Itmp;
+                                    ms.tovars[index].Quantity += Itmp;
+                                }
+                                else throw new MyEx2();
+                            }
+                            break;
 
-                    case ConsoleKey.RightArrow:
-                        switch (index)
-                        {
-                            case 0:
-                                {
-                                    if (ms.tovars.Any() && pr.tovars[0].Quantity > 0  )
-                                    {
-                                        pr.tovars[0].Quantity--;
-                                        ms.tovars[0].Quantity++;
-                                    }
-                                    else break;
-                                }
-                                break;
-                            case 1:
-                                {
-                                    if (ms.tovars.Any() && pr.tovars[1].Quantity > 0)
-                                    {
-                                        pr.tovars[1].Quantity--;
-                                        ms.tovars[1].Quantity++;
-                                    }
-                                   
-                                }
-                                break;
-                            case 2:
-                                {
-                                    if (ms.tovars.Any() && pr.tovars[2].Quantity > 0)
-                                    {
-                                        pr.tovars[2].Quantity--;
-                                        ms.tovars[2].Quantity++;
-                                    }
-                                    
-                                }
-                                break;
-                            case 3:
-                                {
-                                    if (ms.tovars.Any() && pr.tovars[3].Quantity > 0)
-                                    {
-                                        pr.tovars[3].Quantity--;
-                                        ms.tovars[3].Quantity++;
-                                    }
-                                   
-                                }
-                                break;
-                            case 4:
-                                {
-                                    if (ms.tovars.Any() && pr.tovars[4].Quantity > 0)
-                                    {
-                                        pr.tovars[4].Quantity--;
-                                        ms.tovars[4].Quantity++;
-                                    }
-                                    
-                                }
-                                break;
-                            case 5:
-                                {
-                                    if (ms.tovars.Any() && pr.tovars[5].Quantity > 0)
-                                    {
-                                        pr.tovars[5].Quantity--;
-                                        ms.tovars[5].Quantity++;
-                                    }
-                                   
-                                }
-                                break;
-                            case 6:
-                                {
-                                    if (ms.tovars.Any() && pr.tovars[6].Quantity > 0)
-                                    {
-                                        pr.tovars[6].Quantity--;
-                                        ms.tovars[6].Quantity++;
-                                    }
-                                  
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    case ConsoleKey.LeftArrow:
-                        switch (index)
-                        {
-                            case 0:
-                                {
-                                    if (ms.tovars[0].Quantity > 0)
-                                    {
-                                        pr.tovars[0].Quantity++;
-                                        ms.tovars[0].Quantity--;
-                                    }
-                                    else WriteLine($"error");
-                                }
-                                break;
-                            case 1:
-                                {
-                                    if (ms.tovars[1].Quantity > 0)
-                                    {
-                                        pr.tovars[1].Quantity++;
-                                        ms.tovars[1].Quantity--;
-                                    }
-                                    else WriteLine($"error");
-                                }
-                                break;
-                            case 2:
-                                {
-                                    if (ms.tovars[2].Quantity > 0)
-                                    {
-                                        pr.tovars[2].Quantity++;
-                                        ms.tovars[2].Quantity--;
-                                    }
-                                    else WriteLine($"error");
-                                }
-                                break;
-                            case 3:
-                                {
-                                    if (ms.tovars[3].Quantity > 0)
-                                    {
-                                        pr.tovars[3].Quantity++;
-                                        ms.tovars[3].Quantity--;
-                                    }
-                                    else WriteLine($"error");
-                                }
-                                break;
-                            case 4:
-                                {
-                                    if (ms.tovars[4].Quantity > 0)
-                                    {
-                                        pr.tovars[4].Quantity++;
-                                        ms.tovars[4].Quantity--;
-                                    }
-                                    else WriteLine($"error");
-                                }
-                                break;
-                            case 5:
-                                {
-                                    if (ms.tovars[5].Quantity > 0)
-                                    {
-                                        pr.tovars[5].Quantity++;
-                                        ms.tovars[5].Quantity--;
-                                    }
-                                    else WriteLine($"error");
-                                }
-                                break;
-                            case 6:
-                                {
-                                    if (ms.tovars[6].Quantity > 0)
-                                    {
-                                        pr.tovars[6].Quantity++;
-                                        ms.tovars[6].Quantity--;
-                                    }
-                                    else WriteLine($"error");
-                                }
-                                break;
-                            default:
-                                break;
-                        }
-                        break;
-                    default:
-                        break;
+                        default:
+                            break;
+                    }
                 }
-            }
-            
+                catch (MyEx1 ex)
+                {
+                    WriteLine($"            {ex.Message}");
+                    ReadLine();
+                }
+                catch (MyEx2 ex)
+                {
+                    WriteLine($"            {ex.Message}");
+                    ReadLine();
+                }
+                catch (Exception ex)
+                {
+                    WriteLine($"{ex.Message}");
+                }                
+            }            
         }
         private static void Menu(List<Tovar>st,int _index)
         {
@@ -280,6 +186,19 @@ namespace Cs_Tovar_hw_6_2
                 ResetColor();
             }
             WriteLine();
+        }
+
+        public class MyEx1 : ApplicationException
+        {
+            public DateTime TimeException { get; private set; }
+            public MyEx1() : base("Выберите хотябы один товар, чтобы оформить заказ") { }
+
+        }
+        public class MyEx2 : ApplicationException
+        {
+            public DateTime TimeException { get; private set; }
+            public MyEx2() : base("Некорректный ввод") { }
+
         }
     }
 }
